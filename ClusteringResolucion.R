@@ -53,3 +53,48 @@ ggplot(v2,aes(x=flavonoides,y=color_int,col=as.factor(grupo),shape=as.factor(bod
 
 ###############################################################
 
+#kmeans
+
+#importo y saco bodega
+vinos <- read.csv("vinos.csv")
+v3 <- vinos[,-1]
+
+#seed para la muestra, escalo y agrego centroide 
+set.seed(35971187)
+sample(1:178,3)
+
+centros<-scale(v3[,c("flavonoides","color_int")])[c(94,165,63),]
+
+km <- kmeans(scale(v3[,c("flavonoides","color_int")]), centers=centros)
+
+#Grafico
+plot(x=scale(v3$flavonoides),y=scale(v3$color_int))
+
+#Agrego los centroides
+points(centros, pch=3, col=2:6, cex = 5)
+
+#Ubico los clusters
+points(scale(v3[,c("flavonoides","color_int")]),pch=1,col=(km$cluster+1), cex=1)
+
+#Ubico los nuevos centros
+points(km$centers, pch=2, col=2:6, cex = 4)
+
+# Comparacion jeraquico - kmeans
+table(cutree(hc, k=3), km$cluster )
+
+#    1  2  3
+# 1 21  0 55
+# 2 58 16  0
+# 3  0 28  0
+
+
+# este agrupamiento clasifico 79 como B1, cuando en realidad eran 76
+# (pero de estos 79, en realidad 58 pertenecen a B2)
+# clasifico 44 como B2, cuando en realidad eran 74
+# clasifico 55 como B3, cuando en realidad eran 28 
+# (y estos 55 agrupados en realidad pertenecian a B1)
+# No resulta un buen predictor
+
+
+###############################################################
+
