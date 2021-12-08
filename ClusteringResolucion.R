@@ -98,3 +98,43 @@ table(cutree(hc, k=3), km$cluster )
 
 ###############################################################
 
+#knn
+
+#importo
+vinos <- read.csv("vinos.csv")
+summary(vinos)
+
+#muestras para entrenamiento y chequeo
+set.seed(35971187)
+s<-sample(1:178,142)  
+vinos[s,]
+
+v_data <- scale(vinos[,-1])[s,]      
+v_bodega <- vinos[s, 1]              
+v_test <- scale(vinos[,-1])[-s,]
+v_check <- vinos[-s,1]        
+
+# Aplico KNN
+# raiz cuadrada de 178 = 13
+# entrenamiento con el 80% y test con el otro 20% 
+library(class)
+modelo <- knn(v_data, v_test, v_bodega, k=13 )
+
+#Comparacion entre modelo y tabla original
+
+table(v_check,modelo)
+
+#         modelo
+# v_check  1  2  3
+#       1  8  0  0
+#       2  1 16  1
+#       3  0  0 10
+
+#Grafico
+ggplot(vinos[-s,], aes(x=flavonoides, y=color_int, col=as.factor(bodega), shape=modelo )) + geom_point()
+
+
+# mi modelo clasifico 9 como B1, en realidad eran 8
+# mi modelo clasifico 16 como B2, en realidad eran 18
+# mi modelo clasifico 11 como B3, en realidad eran 10
+# muy buen predictor
