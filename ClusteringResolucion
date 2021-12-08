@@ -1,1 +1,55 @@
 TP Clustering 
+# agrupamiento jerárquico
+
+#importo
+vinos <- read.csv("vinos.csv")
+head(vinos)
+summary(vinos)
+
+#Realizar un agrupamiento en 3 grupos - no utilizar la columna bodega:
+#Saco Bodega, escalo, y calculo distincia con dist()
+v2 <- vinos[,-1]
+summary(v2)
+distV2 <- dist(scale(v2[,c("flavonoides","color_int")]))
+
+#Aplico hclust
+hc <- hclust(distV2)
+
+#Grafico
+plot(hc)
+
+#Agrupo en 3 cuadradantes y muestro las agrupaciones en la viz
+rect.hclust(hc,k=3, border=3:10)
+
+
+#Agrego columna grupo
+v2 <- cbind(vinos, grupo=cutree(hc,k=3))
+
+#Matriz de confusion
+table(v2$bodega,v2$grupo)
+
+#     1  2  3
+# 1  58  1  0
+# 2  18 53  0
+# 3   0 20 28
+
+#Grafico con ggplot
+library(ggplot2)
+ggplot(v2,aes(x=flavonoides,y=color_int,col=as.factor(grupo),shape=as.factor(bodega))) + geom_point()
+
+
+# El agrupamiento clasifico como Bodega3 a 28, cuando en realidad eran 48 
+# un 42% de error
+
+# Clasifico como Bodega2 a 74, cuando en realidad eran 71
+# el error parece minimo, pero 20 de esos 74 en realidad eran los que pertenecian a B3
+# y le falto tomar 18, que se los asigno erroneamente a B1
+
+# Y en B1 clasifico 58+18
+# siendo esos 18 como decia antes pertenecientes a B2
+
+# No resulta un buen predictor
+
+
+###############################################################
+
