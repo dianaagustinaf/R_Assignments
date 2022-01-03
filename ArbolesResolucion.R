@@ -95,3 +95,87 @@ summary(arbol)
 # es el insurance
 
 
+#predict de test sin la columna deny
+p<-predict(arbol,h_test[,names(h_test)!="deny"])
+td<-h_test$deny
+#matriz de confusion con valores originales de test
+table(p,td)
+
+
+#         td
+# p     no   yes
+# no    408  44
+# yes    8  16
+
+# el arbol predijo 24 yes, cuando en realidad eran 60  (60% de error)
+# alto costo porque no le estaría negando la hipoteca a un 60% mas que deberia
+# y predijo 452 no, cuando eran 416  (8% de error)
+
+
+
+# Si el costo de otorgar una hipoteca (deny:no) cuando debería haberse denegado (deny:yes) 
+# es 5 veces que el de denegar una que debería haberse otorgado, 
+# cuál sería el nuevo arbol de decisión? 
+# Analizar la nueva matriz de confusión, tiene sentido el cambio?
+
+
+#matriz de costos y armo arbol agregando ese costo
+
+costo<-matrix(c(0,1,5,0),2,2,dimnames = list(c("yes","no"),c("yes","no")))
+
+arbolCosto<-C5.0(h_train[,names(h_train)!="deny"],h_train$deny,costs = costo)
+
+summary(arbolCosto)
+# Decision tree:
+#   
+# insurance = no: no (1863/188)
+# insurance = yes:
+# :...single = no: no (23/19)
+#     single = yes: yes (18)
+# 
+# 
+# Evaluation on training data (1904 cases):
+#   
+#   Decision Tree       
+# -----------------------  
+#   Size      Errors   Cost  
+# 
+#     3  207(10.9%)   0.11   <<
+#   
+#   
+#   (a)   (b)    <-classified as
+# ----  ----
+#   1679          (a): class no
+#   207    18    (b): class yes
+# 
+# 
+# Attribute usage:
+#   
+#   100.00%	insurance
+#   2.15%	single
+
+p2<-predict(arbolCosto,h_test[,names(h_test)!="deny"])
+td2<-h_test$deny
+table(p2,td2)
+
+#         td2
+# p2     no yes
+# no    416  56
+# yes    0   4
+
+
+#ANTES
+#         td
+# p     no   yes
+# no    408  44
+# yes    8  16
+
+
+# este arbol con un costo mayor de clasificar a alguien de manera erronea en el yes:
+# clasifico a 472 como no , cuando en realidad eran 416
+# y 4 en el yes, cuando en realidad eran 60
+# aumento la clasificacion en NO
+#le estaria negando la hipoteca a muchos menos de los que deberia
+#para resaltar tambien, en este caso el arbol esta haciendo muchas menos preguntas
+#y define principalmente a partir de insurance 
+#y en caso de ser yes, pregunta si es single y ahi termina.
