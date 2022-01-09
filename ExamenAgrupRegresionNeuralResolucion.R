@@ -139,3 +139,51 @@ predict(modelolm,data.frame(Ruido=36.74,Respuesta=72.83,Volumen=2.259))
 
 ############################################################################################################
 
+#   3- Utilizando el 70% de los datos para entrenamiento:
+#   a. Realizar una red neuronal para estimar el combustible utilizado 
+# de los vehículos, usando una capa oculta de 5 neuronas y la función 
+# de activación "tanh"
+
+combu5 <- read.csv("combustibles.csv",stringsAsFactors = TRUE)
+head(combu5)
+set.seed(35971187)
+
+#muestra del 70%
+s<-sample(1:100,70)
+
+#Escalo variables numericas
+combu6<-as.data.frame(scale(combu5[,c(2,3,4,5)]))
+head(combu6)
+
+#Le vuelvo a agregar la columna original Combustible
+combu6$Combustible <- combu5$Combustible
+head(combu6)
+
+
+library(neuralnet)
+set.seed(35971187)
+#Realizo red neuronal con datos escalados 
+nn<-neuralnet(Combustible  ~ ., data = combu6[s,], act.fct = "tanh", hidden = 5, linear.output = TRUE)
+
+#Lo visualizo
+plot(nn)
+
+
+# b. Realizar y analizar la matriz de confusión con los datos de testeo.
+
+#Prediccion + matriz de confusion
+pre1<-predict(nn,combu6[-s,])
+pred2<-factor(apply(pre1,1,which.max),labels=levels(combu5$Combustible))
+table(pred2,combu6[-s,]$Combustible)
+
+# pred2    Diesel Gas Nafta
+# Diesel      3   2     0
+# Gas         4  10     0
+# Nafta       0   0    11
+
+#De los 30 valores:
+# La predicción de Nafta no tuvo errores, con 11
+# La red clasifico 14 combustibles como Gas, pero en realidad eran 12 (un margen de error bajo)
+# Y clasifico 5 combustibles como Diesel, pero en realidad eran 7 (también un margen de error bajo)
+
+ 
