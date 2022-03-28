@@ -1,12 +1,12 @@
 # R_practice
 
-Data analysis exercises using R.
+##Data analysis assignments using R.
 
-○ Apriori
-○ Clustering
-○ Decision trees
-○ Neural network
+* Apriori
+* Clustering
+* Decision trees
+* Neural network
 
-Subject: Programming 3. ORT Argentina
+ORT Argentina. Subject: Programming 3. 
 
 Prof. David Alfie.
