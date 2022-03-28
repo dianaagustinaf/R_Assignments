@@ -1,6 +1,6 @@
 # R_practice
 
-##Data analysis assignments using R.
+## Data analysis assignments using R.
 
 * Apriori
 * Clustering
